@@ -49,7 +49,14 @@ class RenderLanguageSwitcher
         $prefered_url     = url()->locale($current_path,$prefered_locale);
         $toggle_title     = $this->toggle_title ? $this->toggle_title : $current_locale . " <span class='caret'></span>"; // If the user has passed a button title set it, else default to the currently enabled locale.
         $custom_title     = $this->toggle_title != false; // Check if the user has set a custom title. Used in building the ul of locales
-        $views_dir        = File::directories('../addons')[0] . '/wirelab/language_switcher-plugin/resources/views'; // Get the dir within the addon dir
+
+        if (file_exists('../core/wirelab')) {
+            $views_dir = File::directories('../core/wirelab/language_switcher-plugin/resources/views'); // Get the dir within the addon dir
+        } elseif(file_exists(File::directories('../addons')[0] . '/wirelab/language_switcher-plugin/resources/views')) {
+            $views_dir = File::directories('../addons')[0] . '/wirelab/language_switcher-plugin/resources/views'; // Get the dir within the addon dir
+        } else {
+            throw new Exception("Couldn't find view folder.");
+        }
 
         foreach (File::allFiles($views_dir) as $file){
             // Use the names of the views as types
@@ -57,7 +64,7 @@ class RenderLanguageSwitcher
         }
 
         if (!in_array($type, $types)) {
-            throw new Exception("Unkown LanguageSwitcher type");
+            throw new Exception("Unkown LanguageSwitcher type.");
         }
 
         if(($key = array_search($current_locale, $locales)) !== false && !$custom_title) {
