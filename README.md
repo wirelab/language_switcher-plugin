@@ -2,6 +2,9 @@
 A PyroCMS 3 plugin providing users with numerous ways of switching language. The default types use bootstrap 3.
 
 ## Installation
+`composer require wirelab/language_switcher-plugin`
+
+### Manual installation
 __Make sure to replace \<namespace\> with your own namespace. This is the name of the folder under `/addons`__ <br>
 1. In your terminal navigate to your project root<br>
 2. `mkdir addons/<namespace>/wirelab`<br>
