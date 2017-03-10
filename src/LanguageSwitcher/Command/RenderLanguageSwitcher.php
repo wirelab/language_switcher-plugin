@@ -11,9 +11,9 @@ class RenderLanguageSwitcher
 {
     use DispatchesJobs;
 
-    private $div_class;
-    private $button_class;
-    private $button_title;
+    private $container_class;
+    private $toggle_class;
+    private $toggle_title;
     private $ul_class;
     private $li_class;
     private $a_class;
@@ -21,15 +21,15 @@ class RenderLanguageSwitcher
 
     public function __construct(String $type, Array $options)
     {
-        $default_button_class = $type == 'li' ? 'dropdown' : 'btn btn-primary dropdown-toggle';
+        $default_toggle_class = $type == 'li' ? 'dropdown' : 'btn btn-primary dropdown-toggle';
 
-        $this->div_class    = isset($options['div_class'])    ? $options['div_class']    : 'dropdown';
-        $this->button_class = isset($options['button_class']) ? $options['button_class'] : $default_button_class;
-        $this->button_title = isset($options['button_title']) ? $options['button_title'] : false;
-        $this->ul_class     = isset($options['ul_class'])     ? $options['ul_class']     : 'dropdown-menu';
-        $this->li_class     = isset($options['li_class'])     ? $options['li_class']     : '';
-        $this->a_class      = isset($options['a_class'])      ? $options['a_class']      : '';
-        $this->type         = $type;
+        $this->container_class    = isset($options['container_class'])    ? $options['container_class']    : 'dropdown';
+        $this->toggle_class       = isset($options['toggle_class']) ? $options['toggle_class'] : $default_toggle_class;
+        $this->toggle_title       = isset($options['toggle_title']) ? $options['toggle_title'] : false;
+        $this->ul_class           = isset($options['ul_class'])     ? $options['ul_class']     : 'dropdown-menu';
+        $this->li_class           = isset($options['li_class'])     ? $options['li_class']     : '';
+        $this->a_class            = isset($options['a_class'])      ? $options['a_class']      : '';
+        $this->type               = $type;
     }
 
     public function handle(
@@ -47,8 +47,8 @@ class RenderLanguageSwitcher
         $prefered_locale  = strtolower(substr($prefered_locale, 0, strpos($prefered_locale, ','))); // Get the first prefered lang out of the string
         $prefered_enabled = in_array($prefered_locale, $locales); // Check if the prefered locale is enabled in pyro
         $prefered_url     = url()->locale($current_path,$prefered_locale);
-        $button_title     = $this->button_title ? $this->button_title : $current_locale . " <span class='caret'></span>"; // If the user has passed a button title set it, else default to the currently enabled locale.
-        $custom_title     = $this->button_title != false; // Check if the user has set a custom title. Used in building the ul of locales
+        $toggle_title     = $this->toggle_title ? $this->toggle_title : $current_locale . " <span class='caret'></span>"; // If the user has passed a button title set it, else default to the currently enabled locale.
+        $custom_title     = $this->toggle_title != false; // Check if the user has set a custom title. Used in building the ul of locales
         $views_dir        = File::directories('../addons')[0] . '/wirelab/language_switcher-plugin/resources/views'; // Get the dir within the addon dir
 
         foreach (File::allFiles($views_dir) as $file){
@@ -86,20 +86,20 @@ class RenderLanguageSwitcher
         }
 
         $data = [
-            'div_class'    => $this->div_class,
-            'button_class' => $this->button_class,
-            'ul_class'     => $this->ul_class,
-            'li_class'     => $this->li_class,
-            'a_class'      => $this->a_class,
-            'button_title' => $button_title,
-            'custom_title' => $custom_title,
-            'locales'      => $locales,
-            'current'      => [
+            'container' => [ 'class' => $this->container_class ],
+            'toggle'    => [ 'class' => $this->toggle_class ],
+            'ul'        => [ 'class' => $this->ul_class ],
+            'li'        => [ 'class' => $this->li_class ],
+            'a'         => [ 'class' => $this->a_class ],
+            'toggle'    => [ 'title' => $toggle_title],
+            'custom'    => [ 'title' => $custom_title],
+            'locales'   => $locales,
+            'current'   => [
                     'locale'   => $current_locale,
                     'country'  => locale_get_display_region("-$current_locale"),
                     'language' => locale_get_display_language("$current_locale")
             ],
-            'prefered'     => [
+            'prefered' => [
                     'locale'   => $prefered_locale,
                     'enabled'  => $prefered_enabled,
                     'url'      => $prefered_url,
