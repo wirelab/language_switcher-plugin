@@ -19,6 +19,15 @@ For example `{{ languageSwitcher('dropdown', {'toggle_title':'Choose language'})
 The default types are `dropdown`,`modal`, and `li`.
 When using the `modal` type make sure to call it _after_ loading jQuery.
 
+#### Default types
+##### Li
+<p align="center"><img src='https://wirelab.github.io/images/language_switcher-plugin/li.png'></p>
+##### Dropdown
+<p align="center"><img src='https://wirelab.github.io/images/language_switcher-plugin/dropdown.png'></p>
+##### Modal
+The modal makes a cookie when dismissed.
+<p align="center"><img src='https://wirelab.github.io/images/language_switcher-plugin/modal.png'></p>
+
 #### Making a new type
 New types can be made by adding a view under `<plugin path>/resources/views/`. When making a new view it'll automatically add it as a type.
 
