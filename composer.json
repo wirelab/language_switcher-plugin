@@ -1,0 +1,30 @@
+{
+    "name": "wirelab/language_switcher-plugin",
+    "type": "streams-addon",
+    "description": "A plugin providing users with numerous ways of switching language.",
+    "keywords": [
+        "wirelab",
+        "language",
+        "pyrocms",
+        "pyrocms 3",
+        "language switcher"
+    ],
+    "homepage": "http://wirelab.nl/",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Wirelab",
+            "email": "info@wirelab.nl",
+            "homepage": "http://www.wirelab.nl/",
+            "role": "Owner"
+        }
+    ],
+    "support": {
+        "email": "info@wirelab.nl"
+    },
+    "autoload": {
+        "psr-4": {
+            "Wirelab\\LanguageSwitcherPlugin\\": "src/"
+        }
+    }
+}
