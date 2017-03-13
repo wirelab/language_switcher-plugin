@@ -3,6 +3,6 @@
 return [
 	'cookie' => [
 		'name' => 'Cookie',
-		'instructions' => 'The amount of days which the cookie has to last.'
+		'instructions' => 'The number of days which the cookie has to last.'
 	]
 ];
