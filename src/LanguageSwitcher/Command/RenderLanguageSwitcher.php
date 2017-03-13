@@ -23,12 +23,13 @@ class RenderLanguageSwitcher
     {
         $default_toggle_class = $type == 'li' ? 'dropdown' : 'btn btn-primary dropdown-toggle';
 
-        $this->container_class    = isset($options['container_class'])    ? $options['container_class']    : 'dropdown';
-        $this->toggle_class       = isset($options['toggle_class']) ? $options['toggle_class'] : $default_toggle_class;
-        $this->toggle_title       = isset($options['toggle_title']) ? $options['toggle_title'] : false;
-        $this->ul_class           = isset($options['ul_class'])     ? $options['ul_class']     : 'dropdown-menu';
-        $this->li_class           = isset($options['li_class'])     ? $options['li_class']     : '';
-        $this->a_class            = isset($options['a_class'])      ? $options['a_class']      : '';
+        // Get all options. Assign default values to options which are not passed.
+        $this->container_class    = isset($options['container_class']) ? $options['container_class'] : 'dropdown';
+        $this->toggle_class       = isset($options['toggle_class'])    ? $options['toggle_class']    : $default_toggle_class;
+        $this->toggle_title       = isset($options['toggle_title'])    ? $options['toggle_title']    : false;
+        $this->ul_class           = isset($options['ul_class'])        ? $options['ul_class']        : 'dropdown-menu';
+        $this->li_class           = isset($options['li_class'])        ? $options['li_class']        : '';
+        $this->a_class            = isset($options['a_class'])         ? $options['a_class']         : '';
         $this->type               = $type;
     }
 
@@ -46,16 +47,19 @@ class RenderLanguageSwitcher
         $prefered_locale  = $request->server('HTTP_ACCEPT_LANGUAGE'); // Extract http_accept_lang from the request
         $prefered_locale  = strtolower(substr($prefered_locale, 0, strpos($prefered_locale, ','))); // Get the first prefered lang out of the string
         $prefered_enabled = in_array($prefered_locale, $locales); // Check if the prefered locale is enabled in pyro
-        $prefered_url     = url()->locale($current_path,$prefered_locale);
+        $prefered_url     = url()->locale($current_path,$prefered_locale); // Get the current url with the prefered locale
         $toggle_title     = $this->toggle_title ? $this->toggle_title : $current_locale . " <span class='caret'></span>"; // If the user has passed a button title set it, else default to the currently enabled locale.
         $custom_title     = $this->toggle_title != false; // Check if the user has set a custom title. Used in building the ul of locales
+        $composer_folder  = '../core/wirelab/language_switcher-plugin/resources/views'; // The location of the views if the user installed the plugin using composer
+        $manual_folder    = File::directories('../addons')[0] . '/wirelab/language_switcher-plugin/resources/views'; // The location of the views if the user installed the plugin manually
 
         // Try to find the views folder
-        if (file_exists('../core/wirelab/language_switcher-plugin')) {
-            $views_dir = '../core/wirelab/language_switcher-plugin/resources/views'; // Get the dir within the addon dir
-        } elseif(file_exists(File::directories('../addons')[0] . '/wirelab/language_switcher-plugin/resources/views')) {
-            $views_dir = File::directories('../addons')[0] . '/wirelab/language_switcher-plugin/resources/views'; // Get the dir within the addon dir
+        if (file_exists($manual_folder)) {
+            $views_dir = $manual_folder;
+        } elseif(file_exists($composer_folder )) {
+            $views_dir = $composer_folder;
         } else {
+            // If we can't find it throw a new exception
             throw new Exception("Couldn't find view folder.");
         }
 
