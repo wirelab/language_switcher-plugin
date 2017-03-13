@@ -27,7 +27,7 @@
 	}
 
 	$('#languageSwitcher').on('hidden.bs.modal', function () {
-	    createCookie('languageSwitcher', false, 30);
+	    createCookie('languageSwitcher', false, {{ preference('wirelab.plugin.language_switcher::cookie') }});
 	})
 
 	function createCookie(name,value,days) {
