@@ -69,7 +69,7 @@ class RenderLanguageSwitcher
         }
         foreach ($filesystem->allFiles($views_dir) as $file){
             // Use the names of the views as networks
-            types[] = $file->getBaseName('.' . $file->getExtension());
+            $types[] = $file->getBaseName('.' . $file->getExtension());
         }
 
         if (!in_array($type, $types)) {
