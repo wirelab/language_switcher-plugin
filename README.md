@@ -17,8 +17,10 @@ When using the `modal` type make sure to call it _after_ loading jQuery.
 #### Default types
 #### Li
 <p align="center"><img src='https://wirelab.github.io/images/language_switcher-plugin/li.png'></p>
+
 #### Dropdown
 <p align="center"><img src='https://wirelab.github.io/images/language_switcher-plugin/dropdown.png'></p>
+
 #### Modal
 The modal makes a cookie when dismissed.
 <p align="center"><img src='https://wirelab.github.io/images/language_switcher-plugin/modal.png'></p>
@@ -57,3 +59,4 @@ The `$options` array accepts the following options:<br>
 `ul_class`<br>
 `li_class`<br>
 `a_class`<br>
+`pecl` Opt out of usign PECL _( Will remove some features)_
