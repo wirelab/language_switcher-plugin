@@ -18,6 +18,7 @@ class RenderLanguageSwitcher
     private $ul_class;
     private $li_class;
     private $a_class;
+    private $pecl;
     private $type;
 
     public function __construct(String $type, Array $options)
@@ -31,6 +32,7 @@ class RenderLanguageSwitcher
         $this->ul_class           = isset($options['ul_class'])        ? $options['ul_class']        : 'dropdown-menu';
         $this->li_class           = isset($options['li_class'])        ? $options['li_class']        : '';
         $this->a_class            = isset($options['a_class'])         ? $options['a_class']         : '';
+        $this->pecl               = isset($options['pecl'])            ? $options['pecl']            : true;
         $this->type               = $type;
     }
 
@@ -110,18 +112,21 @@ class RenderLanguageSwitcher
             'custom'    => [ 'title' => $custom_title],
             'locales'   => $locales,
             'current'   => [
-                    'locale'   => $current_locale,
-                    'country'  => locale_get_display_region("-$current_locale"),
-                    'language' => locale_get_display_language("$current_locale")
+                    'locale'   => $current_locale
             ],
             'prefered' => [
                     'locale'   => $prefered_locale,
                     'enabled'  => $prefered_enabled,
-                    'url'      => $prefered_url,
-                    'country'  => locale_get_display_region("-$prefered_locale"),
-                    'language' => locale_get_display_language("$prefered_locale")
+                    'url'      => $prefered_url
             ]
         ];
+
+        if ($this->pecl) {
+            $data['current']['country'] = locale_get_display_region("-$current_locale");
+            $data['current']['language'] = locale_get_display_language("$current_locale");
+            $data['prefered']['country']  = locale_get_display_region("-$prefered_locale");
+            $data['prefered']['language'] = locale_get_display_language("$prefered_locale");
+        }
 
         return view("wirelab.plugin.language_switcher::$this->type", $data);
     }

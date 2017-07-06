@@ -2,14 +2,9 @@
 A PyroCMS 3 plugin providing users with numerous ways of switching language. The default types use bootstrap 3.
 
 ## Installation
-`composer require wirelab/language_switcher-plugin`
-
-### Manual installation
-__Make sure to replace \<namespace\> with your own namespace. This is the name of the folder under `/addons`__ <br>
-1. In your terminal navigate to your project root<br>
-2. `mkdir addons/<namespace>/wirelab`<br>
-2. `cd addons/<namespace>/wirelab`<br>
-3. `git clone https://github.com/wirelab/language_switcher-plugin.git`<br>
+```bash
+composer require wirelab/language_switcher-plugin
+```
 
 ## Usage
 Call `{{ languageSwitcher($type, $options) }}` in the desired twig file. <br>
@@ -20,11 +15,11 @@ The default types are `dropdown`,`modal`, and `li`.
 When using the `modal` type make sure to call it _after_ loading jQuery.
 
 #### Default types
-##### Li
+#### Li
 <p align="center"><img src='https://wirelab.github.io/images/language_switcher-plugin/li.png'></p>
-##### Dropdown
+#### Dropdown
 <p align="center"><img src='https://wirelab.github.io/images/language_switcher-plugin/dropdown.png'></p>
-##### Modal
+#### Modal
 The modal makes a cookie when dismissed.
 <p align="center"><img src='https://wirelab.github.io/images/language_switcher-plugin/modal.png'></p>
 
