@@ -5,45 +5,69 @@ use Exception;
 use Illuminate\Config\Repository;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\File;
 use Illuminate\Filesystem\Filesystem;
 
 class RenderLanguageSwitcher
 {
     use DispatchesJobs;
 
-    private $container_class;
-    private $toggle_class;
-    private $toggle_title;
-    private $ul_class;
-    private $li_class;
-    private $a_class;
-    private $pecl;
     private $type;
+    private $filesystem;
+    public  $options;
 
     public function __construct(String $type, Array $options)
     {
-        $default_toggle_class = $type == 'li' ? 'dropdown' : 'btn btn-primary dropdown-toggle';
+        // Set type and filesystem
+        $this->type = $type;
+        $this->filesystem         = new Filesystem;
 
         // Get all options. Assign default values to options which are not passed.
-        $this->container_class    = isset($options['container_class']) ? $options['container_class'] : 'dropdown';
-        $this->toggle_class       = isset($options['toggle_class'])    ? $options['toggle_class']    : $default_toggle_class;
-        $this->toggle_title       = isset($options['toggle_title'])    ? $options['toggle_title']    : false;
-        $this->ul_class           = isset($options['ul_class'])        ? $options['ul_class']        : 'dropdown-menu';
-        $this->li_class           = isset($options['li_class'])        ? $options['li_class']        : '';
-        $this->a_class            = isset($options['a_class'])         ? $options['a_class']         : '';
-        $this->pecl               = isset($options['pecl'])            ? $options['pecl']            : true;
-        $this->type               = $type;
+        $this->options = [
+            'container_class'   => $options['container_class'] ?? 'dropdown',
+            'toggle_class'      => $options['toggle_class']    ?? ($type == 'li' ? 'dropdown' : 'btn btn-primary dropdown-toggle'),
+            'toggle_title'      => $options['toggle_title']    ?? false,
+            'ul_class'          => $options['ul_class']        ?? 'dropdown-menu',
+            'li_class'          => $options['li_class']        ?? '',
+            'a_class'           => $options['a_class']         ?? '',
+            'pecl'              => $options['pecl']            ?? true
+        ];
+
     }
+
+
+    /**
+     * Checks three locations for a views folder or throws an exception
+     * @return string
+     * @throws Exception
+     */
+    protected function findViewFolder() {
+        $composer_folder   = base_path() . '/core/wirelab/language_switcher-plugin/resources/views'; // The location of the views if the user installed the plugin using composer
+        $manual_folder     = base_path() . '/addons/' . env('APPLICATION_REFERENCE') . '/wirelab/language_switcher-plugin/resources/views'; // The location of the views if the user installed the plugin manually
+        $published_folder  = base_path() . '/resources' . env('APPLICATION_REFERENCE') . 'addons/wirelab/language_switcher-plugin/views'; // The locations of the views if the user published the views
+
+        $targets = [$composer_folder, $manual_folder, $published_folder];
+
+
+        // Loop trough targets and see if the folder exists
+        foreach ($targets as $target) {
+
+            if( $this->filesystem->exists($target) ) {
+                return (string) $target;
+            };
+        }
+
+        // If we can't find it throw a new exception
+        throw new Exception("[language_switcher-plugin] Couldn't find view folder.");
+
+    }
+
 
     public function handle(
         SettingRepositoryInterface $settings,
         Request $request,
-        Repository $config
-    )
-   {
-        $type             = $this->type;
-        $types            = [];
+        Repository $config)
+    {
+
         $locales          = $settings->value('streams::enabled_locales'); // Get an array of all currently enables locales.
         $current_path     = $request->path(); // Get the current request path. For example /pages/some-page-title
         $current_locale   = $config->get('app.locale'); // Get the current request locale.
@@ -51,31 +75,13 @@ class RenderLanguageSwitcher
         $prefered_locale  = strtolower(substr($prefered_locale, 0, strpos($prefered_locale, ','))); // Get the first prefered lang out of the string
         $prefered_enabled = in_array($prefered_locale, $locales); // Check if the prefered locale is enabled in pyro
         $prefered_url     = url()->locale($current_path,$prefered_locale); // Get the current url with the prefered locale
-        $toggle_title     = $this->toggle_title ? $this->toggle_title : $current_locale . " <span class='caret'></span>"; // If the user has passed a button title set it, else default to the currently enabled locale.
-        $custom_title     = $this->toggle_title != false; // Check if the user has set a custom title. Used in building the ul of locales
-        $filesystem        = new Filesystem;
-        $composer_folder   = base_path() . '/core/wirelab/language_switcher-plugin/resources/views'; // The location of the views if the user installed the plugin using composer
-        $manual_folder     = base_path() . '/addons/' . env('APPLICATION_REFERENCE') . '/wirelab/language_switcher-plugin/resources/views'; // The location of the views if the user installed the plugin manually
-        $published_folder  = base_path() . '/resources' . env('APPLICATION_REFERENCE') . 'addons/wirelab/language_switcher-plugin/views'; // The locations of the views if the user published the views
+        $toggle_title     = $this->options['toggle_title'] ? $this->options['toggle_title'] : $current_locale . " <span class='caret'></span>"; // If the user has passed a button title set it, else default to the currently enabled locale.
+        $custom_title     = $this->options['toggle_title'] != false; // Check if the user has set a custom title. Used in building the ul of locales
 
-        // Try to find the views folder
-       if ($filesystem->exists($published_folder)) {
-            $views_dir = published_folder;
-       } elseif ($filesystem->exists($manual_folder)) {
-            $views_dir = $manual_folder;
-        } elseif($filesystem->exists($composer_folder )) {
-            $views_dir = $composer_folder;
-        } else {
-            // If we can't find it throw a new exception
-            throw new Exception("[language_switcher-plugin] Couldn't find view folder.");
-        }
-        foreach ($filesystem->allFiles($views_dir) as $file){
+        // Loopps trough the views
+        foreach ($this->filesystem->allFiles($this->findViewFolder()) as $file){
             // Use the names of the views as networks
             $types[] = $file->getBaseName('.' . $file->getExtension());
-        }
-
-        if (!in_array($type, $types)) {
-            throw new Exception("Unkown LanguageSwitcher type.");
         }
 
         if(($key = array_search($current_locale, $locales)) !== false && !$custom_title) {
@@ -84,17 +90,7 @@ class RenderLanguageSwitcher
             unset($locales[$key]);
         }
 
-        // Loop over all currently enabled languages and manipulate the array structure
-        // Old structure: ['en','nl']
-        // New structure:
-        // [[
-        //    'url'  => 'pyro.com/contact'
-        //    'name' => 'en'
-        //  ],
-        //  [
-        //    'url'  => 'pyro.com/nl/contact'
-        //    'name' => 'nl'
-        // ]]
+
         foreach ($locales as $key => $locale) {
             $locale_url = url()->locale($current_path,$locale); // Generate a url to the current page with the new locale
             $locales[$key] = [
@@ -104,24 +100,24 @@ class RenderLanguageSwitcher
         }
 
         $data = [
-            'container' => [ 'class' => $this->container_class ],
-            'toggle'    => [ 'class' => $this->toggle_class, 'title' => $toggle_title ],
-            'ul'        => [ 'class' => $this->ul_class ],
-            'li'        => [ 'class' => $this->li_class ],
-            'a'         => [ 'class' => $this->a_class ],
+            'container' => [ 'class' => $this->options['container_class'] ],
+            'toggle'    => [ 'class' => $this->options['toggle_class'], 'title' => $toggle_title ],
+            'ul'        => [ 'class' => $this->options['ul_class'] ],
+            'li'        => [ 'class' => $this->options['li_class'] ],
+            'a'         => [ 'class' => $this->options['a_class'] ],
             'custom'    => [ 'title' => $custom_title],
             'locales'   => $locales,
             'current'   => [
-                    'locale'   => $current_locale
+                'locale'   => $current_locale
             ],
             'prefered' => [
-                    'locale'   => $prefered_locale,
-                    'enabled'  => $prefered_enabled,
-                    'url'      => $prefered_url
+                'locale'   => $prefered_locale,
+                'enabled'  => $prefered_enabled,
+                'url'      => $prefered_url
             ]
         ];
 
-        if ($this->pecl) {
+        if ($this->options['pecl']) {
             $data['current']['country'] = locale_get_display_region("-$current_locale");
             $data['current']['language'] = locale_get_display_language("$current_locale");
             $data['prefered']['country']  = locale_get_display_region("-$prefered_locale");
