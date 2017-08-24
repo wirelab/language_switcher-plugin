@@ -1,9 +1,12 @@
 <?php namespace Wirelab\LanguageSwitcherPlugin;
 
-
 use Anomaly\Streams\Platform\Addon\Plugin\Plugin;
 use Wirelab\LanguageSwitcherPlugin\LanguageSwitcher\Command\RenderLanguageSwitcher;
 
+/**
+ * Class LanguageSwitcherPlugin
+ * @package Wirelab\LanguageSwitcherPlugin
+ */
 class LanguageSwitcherPlugin extends Plugin
 {
 
@@ -26,5 +29,4 @@ class LanguageSwitcherPlugin extends Plugin
             )
         ];
     }
-
 }
