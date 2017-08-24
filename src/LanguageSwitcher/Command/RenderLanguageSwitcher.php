@@ -7,15 +7,35 @@ use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Http\Request;
 use Illuminate\Filesystem\Filesystem;
 
+/**
+ * Class RenderLanguageSwitcher
+ * @package Wirelab\LanguageSwitcherPlugin\LanguageSwitcher\Command
+ */
 class RenderLanguageSwitcher
 {
     use DispatchesJobs;
 
+    /**
+     * @var string
+     */
     private $type;
-    private $filesystem;
-    public  $options;
 
-    public function __construct(String $type, Array $options)
+    /**
+     * @var Filesystem
+     */
+    private $filesystem;
+
+    /**
+     * @var array
+     */
+    public $options;
+
+    /**
+     * RenderLanguageSwitcher constructor.
+     * @param string $type
+     * @param array $options
+     */
+    public function __construct(string $type, array $options)
     {
         // Set type and filesystem
         $this->type = $type;
@@ -31,7 +51,6 @@ class RenderLanguageSwitcher
             'a_class'           => $options['a_class']         ?? '',
             'pecl'              => $options['pecl']            ?? true
         ];
-
     }
 
 
@@ -40,7 +59,8 @@ class RenderLanguageSwitcher
      * @return string
      * @throws Exception
      */
-    protected function findViewFolder() {
+    protected function findViewFolder()
+    {
         $composer_folder   = base_path() . '/core/wirelab/language_switcher-plugin/resources/views'; // The location of the views if the user installed the plugin using composer
         $manual_folder     = base_path() . '/addons/' . env('APPLICATION_REFERENCE') . '/wirelab/language_switcher-plugin/resources/views'; // The location of the views if the user installed the plugin manually
         $published_folder  = base_path() . '/resources' . env('APPLICATION_REFERENCE') . 'addons/wirelab/language_switcher-plugin/views'; // The locations of the views if the user published the views
@@ -50,24 +70,27 @@ class RenderLanguageSwitcher
 
         // Loop trough targets and see if the folder exists
         foreach ($targets as $target) {
-
-            if( $this->filesystem->exists($target) ) {
+            if ($this->filesystem->exists($target)) {
                 return (string) $target;
             };
         }
 
         // If we can't find it throw a new exception
         throw new Exception("[language_switcher-plugin] Couldn't find view folder.");
-
     }
 
 
+    /**
+     * @param SettingRepositoryInterface $settings
+     * @param Request $request
+     * @param Repository $config
+     * @return mixed
+     */
     public function handle(
         SettingRepositoryInterface $settings,
         Request $request,
-        Repository $config)
-    {
-
+        Repository $config
+    ) {
         $locales          = $settings->value('streams::enabled_locales'); // Get an array of all currently enables locales.
         $current_path     = $request->path(); // Get the current request path. For example /pages/some-page-title
         $current_locale   = $config->get('app.locale'); // Get the current request locale.
@@ -79,12 +102,12 @@ class RenderLanguageSwitcher
         $custom_title     = $this->options['toggle_title'] != false; // Check if the user has set a custom title. Used in building the ul of locales
 
         // Loopps trough the views
-        foreach ($this->filesystem->allFiles($this->findViewFolder()) as $file){
+        foreach ($this->filesystem->allFiles($this->findViewFolder()) as $file) {
             // Use the names of the views as networks
             $types[] = $file->getBaseName('.' . $file->getExtension());
         }
 
-        if(($key = array_search($current_locale, $locales)) !== false && !$custom_title) {
+        if (($key = array_search($current_locale, $locales)) !== false && !$custom_title) {
             // If the user has not set a button title we're going to use the currently enabled locale as title
             // here we unset it to prevent the locale from showing up both as a list item and title
             unset($locales[$key]);
