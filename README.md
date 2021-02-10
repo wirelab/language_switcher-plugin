@@ -1,4 +1,5 @@
 # Language switcher plugin
+## ⚠️ This repository has been deprecated ⚠️
 A PyroCMS 3 plugin providing users with numerous ways of switching language. The default types use bootstrap 3.
 
 ## Installation
